@@ -1,15 +1,16 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <head>
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.1/css/materialize.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>
-<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 
-
+<!--<script src = "https://code.jquery.com/jquery-2.1.1.min.js"></script>-->
 <meta charset="UTF-8">
-<title>History Viewer</title>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>History Viewer</title>
 </head>
 
 <body>
+<h1 align="center"> World History Timeline </h1>
 <div class="top">
     <div class="slidecontainer">
         <form action="#">
@@ -24,7 +25,6 @@
 
     </div>
 </div>
-<!--<button class="btn" onclick="refreshData()">Refresh</button>-->
 <div id="dateInfo">
 
 
@@ -35,28 +35,39 @@
 
 
 <style>
+
+    h1 {
+        padding: 2%;
+    }
+
     a {
         color: antiquewhite;
         text-decoration: underline;
+
     }
+
     .center {
         /*text-align: center;*/
         display: block;
         margin-left: auto;
         margin-right: auto;
     }
+
     body {
-        padding: 4%;
+        padding: 0% 4% 4% 4%;
         background-color: #162037;
         color: white;
     }
+
     .slidecontainer {
         width: 100%; /* Width of the outside container */
     }
+
 </style>
 
 
 <script>
+
     let slider = document.getElementById("myRange");
     let output = document.getElementById("demo");
     output.innerHTML = slider.value;
@@ -74,26 +85,44 @@
             "    </div>\n" +
             "  </div>";
         document.getElementById("dateInfo").innerHTML = "";
+
     };
     slider.onmouseup = function () {
         document.getElementById("dateInfo").innerHTML = "<h1 class='center'>No events found</h1>";
         refreshData();
     };
+
     function refreshData() {
         document.getElementById("dateInfo").innerHTML = "<h1 class='center'>No events found</h1>";
         drawYear(slider.value);
         document.getElementById("loading-container").innerHTML = "";
     }
+
     // http://www.vizgr.org/historical-events/search.php?format=json&begin_date=-2999000&end_date=-2990000&lang=en&limit=10&html=true
     var conds = "&limit=200&html=true";
+
     drawYear(slider.value);
+
     function drawYear(year) {
         document.getElementById("dateInfo").innerHTML = "<h1 class='center'>No events found</h1>";
         var eventsRaw = getEventsFull(year);
         var events = convertResult(eventsRaw[0]).concat(convertResult(eventsRaw[1]));
-        console.log("EVENTS: " + JSON.stringify(events));
         drawEvents(events);
     }
+
+
+    /*
+    <div class="row">
+    <div class="col s10 m12">
+        <div class="card navy red darken-3">
+            <div class="card-content white-text">
+                <span class="card-title">1492</span>
+                <h5>Columbus discovers america.</h5>
+            </div>
+        </div>
+    </div>
+     */
+
     function drawEvents(events) {
         let dateBody = "";
         let cardIntro = "<div class=\"row\">\n" +
@@ -101,8 +130,10 @@
             "        <div class=\"card navy red darken-3\">\n" +
             "            <div class=\"card-content white-text\">\n" +
             "                <span class=\"card-title\">";
+
         let cardMid = "</span>\n" +
             "                <h6>";
+
         let cardOutro = "</h6>" +
             "           </div>\n" +
             "        </div>\n" +
@@ -112,29 +143,30 @@
                 let description = events[i].description.split("amp")[0].split(".ref")[0];
                 if (description.length > 80 && isClean(description)) {
                     if(description.includes("href")) {
-                        console.log("description is: " + description.substring(0));
                         let thingArr = description.split("href=\"");
                         var response = "";
+
                         for(let i = 0; i < thingArr.length; i++) {
                             let current = thingArr[i];
                             if(current.indexOf("\"") !== -1) {
                                 current = "href=\"" + current.substring(0, current.indexOf("\"")) + "\" target=\"_blank\"" + current.substring(current.indexOf(">"));
                             }
+
                             response += current;
                         }
+
                     }
                     dateBody += cardIntro + events[i].date.split("/")[0] + cardMid + response + cardOutro;
-                    console.log(dateBody);
                 }
             }
         }
         document.getElementById("dateInfo").innerHTML = dateBody;
     }
+
     function convertResult(data) {
         if (data !== undefined) {
             let result = data.result;
             let response = [];
-            console.log(result.count);
             for (let i = 0; i < result.count; i++) {
                 let eventName = "event" + i;
                 let event = result[eventName];
@@ -144,8 +176,8 @@
         }
         return [];
     }
+
     function createEvent(event) {
-        console.log("evaluating " + event);
         if (event !== undefined) {
             return {
                 location: event.category2,
@@ -154,24 +186,26 @@
             }
         }
     }
+
     function getEventsFull(year) {
-        // console.log(JSON.stringify(getEventsYeared(year)) + "\n\n\n" + JSON.stringify(getEventsMonthed(year).result.event0));
-        // console.log(createEvent(getEventsMonthed(year).result.event0));
         if (getEventsMonthed(year) === "error") {
             return [getEventsYeared(year)];
         }
+
         if (getEventsYeared(year) === "error") {
             return [getEventsMonthed(year)];
         }
+
         return [getEventsMonthed(year), getEventsYeared(year)];
-        // console.log(convertResult(getEventsYeared(year).result))
     }
+
     function getEventsYeared(year) {
         try {
-            let url = "http://www.vizgr.org/historical-events/search.php?format=json&begin_date=" + year + "0000&end_date=" + year + "0000&lang=en" + conds;
+            let url = "https://www.vizgr.org/historical-events/search.php?format=json&begin_date=" + year + "0000&end_date=" + year + "0000&lang=en" + conds;
             let xhr = new XMLHttpRequest();
             xhr.open("GET", url, false);
             xhr.send();
+
             let info = xhr.response;
             let eventNum = 0;
             while (info.replace("event\"", "event" + eventNum) !== info && eventNum < 100) {
@@ -184,12 +218,15 @@
             return "error";
         }
     }
+
     function getEventsMonthed(year) {
         try {
-            let url = "http://www.vizgr.org/historical-events/search.php?format=json&begin_date=" + year + "0100&end_date=" + year + "1200&lang=en" + conds;
+            let url = "https://www.vizgr.org/historical-events/search.php?format=json&begin_date=" + year + "0100&end_date=" + year + "1200&lang=en" + conds;
             let xhr = new XMLHttpRequest();
             xhr.open("GET", url, false);
             xhr.send();
+
+
             let info = xhr.response;
             let eventNum = 0;
             while (info.replace("event\"", "event" + eventNum) !== info && eventNum < 100) {
@@ -202,20 +239,26 @@
             return "error"
         }
     }
+
     function isClean(str) {
         str = str.toLowerCase();
+
         if(str.includes("january") || str.includes("february") || str.includes("march") || str.includes("april") || str.includes("may")
         || str.includes("june") || str.includes("july") || str.includes("august") || str.includes("september") || str.includes("october")
         || str.includes("december") || str.includes("december")) {
             return false;
         }
+
         if(str.includes("{{")) {
             return false;
         }
+
         if(str.includes("\\\\\\")) {
             return false;
         }
+
         return true;
     }
+
 
 </script>
